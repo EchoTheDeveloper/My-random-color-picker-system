@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en" class="dark-theme">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EchoTheDeveloper's Color System</title>
+    <style>
+        :root {
+            --bg-color: #f5f5f7;
+            --text-color: #1d1d1f;
+            --container-bg: white;
+            --border-color: #d2d2d7;
+            --button-bg: #0071e3;
+            --button-text: white;
+            --button-hover: #0077ed;
+            --input-bg: #f5f5f7;
+        }
+        .dark-theme {
+            --bg-color: #000000;
+            --text-color: #f5f5f7;
+            --container-bg: #1c1c1e;
+            --border-color: #3a3a3c;
+            --button-bg: #0a84ff;
+            --button-text: white;
+            --button-hover: #409cff;
+            --input-bg: #2c2c2e;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .container {
+            background-color: var(--container-bg);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+        h1 {
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            font-size: 1.8rem;
+        }
+        .color-picker-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        #colorWheel {
+            width: 200px;
+            height: 200px;
+            border: none;
+            background: none;
+            cursor: pointer;
+        }
+        .color-wheel-overlay {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            pointer-events: none;
+            background: conic-gradient(
+                red, yellow, lime, aqua, blue, magenta, red
+            );
+            opacity: 0.8;
+        }
+        .color-inputs {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+        .color-input {
+            width: 48%;
+        }
+        .color-input label {
+            display: block;
+            margin-bottom: 0.3rem;
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+        .color-input input {
+            width: 100%;
+            padding: 0.7rem;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            font-size: 1rem;
+        }
+        .color-box {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 1.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        button {
+            background-color: var(--button-bg);
+            color: var(--button-text);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 20px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+        button:hover {
+            background-color: var(--button-hover);
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+        #palette {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+            gap: 10px;
+        }
+        .palette-color {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        #themeToggle {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+    </style>
+</head>
+<body>
+    <button id="themeToggle" aria-label="Toggle Theme">🌞</button>
+    <div class="container" aria-live="polite">
+        <h1>EchoTheDeveloper's Color System</h1>
+        <div class="color-picker-container">
+            <input type="color" id="colorWheel" aria-label="Color Picker" value="#ff0000">
+            <div class="color-wheel-overlay"></div>
+        </div>
+        <div class="color-inputs">
+            <div class="color-input">
+                <label for="hexInput">HEX</label>
+                <input type="text" id="hexInput" aria-label="HEX input" maxlength="7" placeholder="#RRGGBB">
+            </div>
+            <div class="color-input">
+                <label for="rgbInput">RGB</label>
+                <input type="text" id="rgbInput" aria-label="RGB input" placeholder="R, G, B">
+            </div>
+        </div>
+        <div class="color-box" id="selectedColor" aria-label="Selected Color Display"></div>
+        <button onclick="addToPalette()">Add to Palette</button>
+        <div id="palette" aria-live="polite"></div>
+        <button onclick="savePalette()" style="margin-top: 1.5rem;">Save Palette</button>
+    </div>
+
+    <script>
+        const colorWheel = document.getElementById('colorWheel');
+        const selectedColor = document.getElementById('selectedColor');
+        const hexInput = document.getElementById('hexInput');
+        const rgbInput = document.getElementById('rgbInput');
+        const palette = document.getElementById('palette');
+        const themeToggle = document.getElementById('themeToggle');
+
+        let paletteData = [];
+
+        colorWheel.addEventListener('input', updateColorFromWheel);
+        hexInput.addEventListener('input', updateColorFromHex);
+        rgbInput.addEventListener('input', updateColorFromRGB);
+        themeToggle.addEventListener('click', toggleTheme);
+
+        function updateColorFromWheel() {
+            const color = colorWheel.value;
+            updateColor(color);
+        }
+
+        function updateColorFromHex() {
+            let color = hexInput.value;
+            if (color.charAt(0) !== '#') {
+                color = '#' + color;
+            }
+            if (/^#[0-9A-F]{6}$/i.test(color)) {
+                updateColor(color);
+            } else {
+                alert('Invalid HEX format!');
+            }
+        }
+
+        function updateColorFromRGB() {
+            const rgbValues = rgbInput.value.split(',').map(v => parseInt(v.trim()));
+            if (rgbValues.length === 3 && rgbValues.every(v => v >= 0 && v <= 255)) {
+                const color = `rgb(${rgbValues.join(',')})`;
+                updateColor(color);
+            } else {
+                alert('Invalid RGB format! Please enter values like 255, 255, 255.');
+            }
+        }
+
+        function updateColor(color) {
+            selectedColor.style.backgroundColor = color;
+            colorWheel.value = color.startsWith('rgb') ? rgbToHex(color) : color;
+            hexInput.value = colorWheel.value;
+            const rgb = hexToRgb(color);
+            if (rgb) {
+                rgbInput.value = `${rgb.r}, ${rgb.g}, ${rgb.b}`;
+            }
+        }
+
+        function hexToRgb(hex) {
+            const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+            hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+                return r + r + g + g + b + b;
+            });
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : null;
+        }
+
+        function rgbToHex(rgb) {
+            const result = rgb.match(/\d+/g);
+            return result ? '#' + result.map(x => (+x).toString(16).padStart(2, '0')).join('') : '#000000';
+        }
+
+        function addToPalette() {
+            const color = colorWheel.value;
+            const div = document.createElement('div');
+            div.className = 'palette-color';
+            div.style.backgroundColor = color;
+            div.setAttribute('aria-label', `Color ${color}`);
+            palette.appendChild(div);
+            paletteData.push(color);
+        }
+
+        function savePalette() {
+            const link = document.createElement('a');
+            const jsonPalette = JSON.stringify(paletteData, null, 2);
+            const blob = new Blob([jsonPalette], { type: 'application/json' });
+            link.href = URL.createObjectURL(blob);
+            link.download = 'palette.json';
+            link.click();
+        }
+
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark-theme');
+            themeToggle.textContent = document.documentElement.classList.contains('dark-theme') ? '🌙' : '🌞';
+        }
+    </script>
+</body>
+</html>
